@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ViewSwitcher
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/viewSwitcher" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="3"
+                android:id="@+id/lineral_layout">
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:text="New RadioButton"
+                        android:id="@+id/radioButton"
+                        android:background="@android:drawable/button_onoff_indicator_on"
+                        android:checked="false"
+                        android:layout_weight="1" />
+
+                    <RadioButton
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:text="New RadioButton"
+                        android:id="@+id/radioButton3"
+                        android:background="@android:drawable/button_onoff_indicator_off"
+                        android:checked="false"
+                        android:layout_weight="1" />
+
+                    <RadioButton
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:text="New RadioButton"
+                        android:id="@+id/radioButton2"
+                        android:layout_weight="1" />
+                </RadioGroup>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="3">
+
+                <Spinner
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/navigator_axis_one"
+                    android:layout_weight="1"
+                    android:spinnerMode="dropdown" />
+
+                <Spinner
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/navigator_axis_two"
+                    android:layout_weight="1"
+                    android:spinnerMode="dropdown" />
+
+                <Spinner
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/navigator_axis_three"
+                    android:layout_weight="1"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <Space
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00ffffff"
+                    android:id="@+id/navigator_space" />
+
+                <android.support.v4.view.ViewPager
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/navigator_preview_fragment"
+                    android:layout_weight="1"
+                    android:fillViewport="false"/>
+            </RelativeLayout>
+        </LinearLayout>
+        <android.support.v4.view.ViewPager
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/navigator_work_fragment"
+            android:layout_weight="1"
+            android:fillViewport="false"/>
+    </ViewSwitcher>
+
+</LinearLayout>

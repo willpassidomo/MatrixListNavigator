@@ -2,9 +2,8 @@ package com.assesortron.walkthroughnavigator;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.gesture.GestureOverlayView;
 import android.os.Bundle;
-import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -12,9 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.Spinner;
-import android.widget.TabHost;
 import android.widget.Space;
+import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,11 +28,20 @@ import java.util.Set;
  */
 public class Navigator extends Fragment {
 
+    public static final int NUM_PREVIEW_FRAGS = 3;
+    public static final int NUM_DISPLAY_FRAGS = 3;
+
     private ParentListener parentListener;
-    private DisplayFragment displayFragment;
-    private DisplayFragment previewFragment;
+    private Class<DisplayFragment> previewFragment;
+    private Class<DisplayFragment> displayFragment;
+    private List<DisplayFragment> previewFragments;
+    private List<DisplayFragment> displayFragments;
+    private ViewFlipper workingFragmentSpace;
+    private ViewFlipper previewFragmentSpace;
     private List<DisplayObject> objList;
     private Spinner axisOne, axisTwo, axisThree;
+    private RadioButton completeFilter, toDoFilter;
+    private Button allFilter;
     private Space fragmentOverlay;
     private List<List<List<DisplayObject>>> axisMatrix;
 
@@ -88,8 +97,43 @@ public class Navigator extends Fragment {
         }
     }
 
-    public void setFields(DisplayFragment fragment, List<DisplayObject> obj) {
-        this.displayFragment = fragment;
+    @Override
+    public void onActivityCreated(Bundle savedInstances) {
+        super.onActivityCreated(savedInstances);
+        if (getView() != null) {
+            setVariables();
+            setListeners();
+        }
+    }
+
+    public void setPreviewFragment() throws IllegalAccessException, java.lang.InstantiationException {
+        if (previewFragments == null || previewFragments.isEmpty()) {
+            for (int i = 0; i <= NUM_PREVIEW_FRAGS; i++) {
+                previewFragments.add(previewFragment.newInstance());
+            }
+        }
+
+        if (getView() != null && getView().findViewById(R.id.navigator_preview_fragment) != null) {
+            getFragmentManager().beginTransaction().add(R.id.navigator_preview_fragment, previewFragments.get(0));
+        }
+    }
+
+    public void setDisplayFragments() throws IllegalAccessException, java.lang.InstantiationException {
+        if (displayFragments == null || displayFragments.isEmpty()) {
+            for (int i = 0; i < NUM_DISPLAY_FRAGS; i++) {
+                displayFragments.add(displayFragment.newInstance());
+            }
+        }
+
+
+        if (getView() != null && getView().findViewById(R.id.navigator_work_fragment) != null) {
+            getFragmentManager().beginTransaction().add(R.id.navigator_work_fragment, displayFragments.get(0));
+        }
+    }
+
+    public void setFields(List<DisplayObject> obj, Class<DisplayFragment> previewFragment, Class<DisplayFragment> displayFragment) {
+        this.previewFragment = previewFragment;
+        this.displayFragment = displayFragment;
         this.objList = obj;
 
         setVariables();
@@ -97,20 +141,26 @@ public class Navigator extends Fragment {
     }
 
     private void setVariables() {
-        fragmentOverlay = (Space)getView().findViewById(R.id.navigator_space);
-         previewFragmentSpace = ()getView().findViewById(R.id.navigator_preview_fragment);
-        workingFragmentSpace = getView().findViewById(R.id.navigator_work_fragment);
+        previewFragmentSpace = (ViewFlipper) getView().findViewById(R.id.navigator_preview_fragment);
+        workingFragmentSpace = (ViewFlipper) getView().findViewById(R.id.navigator_work_fragment);
 
-        axisOne = (Spinner)getView().findViewById(R.id.navigator_axis_one);
-        axisTwo = (Spinner)getView().findViewById(R.id.navigator_axis_two);
+        axisOne = (Spinner) getView().findViewById(R.id.navigator_axis_one);
+        axisTwo = (Spinner) getView().findViewById(R.id.navigator_axis_two);
         axisThree = (Spinner) getView().findViewById(R.id.navigator_axis_three);
 
+        allFilter = (Button) getView().findViewById(R.id.navigator_all);
+        completeFilter = (RadioButton) getView().findViewById(R.id.navigator_complete);
+        toDoFilter = (RadioButton) getView().findViewById(R.id.navigator_todo);
+
+
+    }
+
+    private void setFields() {
         Set<Comparable> axis1Values = new LinkedHashSet<>();
         Set<Comparable> axis2Values = new LinkedHashSet<>();
         Set<Comparable> axis3Values = new LinkedHashSet<>();
 
-
-        for (DisplayObject obj: objList) {
+        for (DisplayObject obj : objList) {
             axis1Values.add(obj.getAxis1Value());
             axis2Values.add(obj.getAxis2Value());
             axis3Values.add(obj.getAxis3Value());
@@ -120,11 +170,12 @@ public class Navigator extends Fragment {
         List<Comparable> axis2List = new ArrayList<>(axis2Values);
         List<Comparable> axis3List = new ArrayList<>(axis3Values);
 
-        Collections.sort(axis1List); Collections.sort(axis2List);Collections.sort(axis3List);
+        Collections.sort(axis1List);
+        Collections.sort(axis2List);
+        Collections.sort(axis3List);
 
         /* now we have sorted, unique lists of the 3 axis's
          */
-
 
 
         ArrayAdapter<Comparable> a1 = new ArrayAdapter(getActivity(),
@@ -133,7 +184,6 @@ public class Navigator extends Fragment {
                 android.R.layout.simple_spinner_dropdown_item, axis2List);
         ArrayAdapter<Comparable> a3 = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_spinner_dropdown_item, axis3List);
-
 
 
         a1.insert(objList.get(0).axis1Name(), 0);
@@ -147,15 +197,42 @@ public class Navigator extends Fragment {
 
     private void setListeners() {
         //TODO
-        fragmentOverlay.setOnClickListener();
-        fragmentOverlay.setOnLongClickListener();
+
+        //TODO
+        //delete
+        previewFragmentSpace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("On Click ", "fired");
+            }
+        });
+        //TODO
+        //delete
+        previewFragmentSpace.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Log.i("OnLongClick", "fired");
+                return true;
+            }
+        });
+        //TODO
+        //delete
+        allFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("OnClick", "fired");
+            }
+        });
+
         GestureDetector.OnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                return false;
+                Log.i("FLING EVENT", "");
+                return true;
             }
-        }
-        GestureDetector gd = new GestureDetector(getActivity(), gestureListener)
+        };
+
+        GestureDetector gd = new GestureDetector(getActivity(), gestureListener);
 
                 //TODO
         // CONTINUE!!

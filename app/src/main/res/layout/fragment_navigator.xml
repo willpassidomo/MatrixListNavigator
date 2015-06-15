@@ -25,35 +25,54 @@
                 <RadioGroup
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp">
 
-                    <RadioButton
+                    <Button
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
-                        android:text="New RadioButton"
-                        android:id="@+id/radioButton"
-                        android:background="@android:drawable/button_onoff_indicator_on"
+                        android:gravity="center"
+                        android:text="all"
+                        android:clickable="true"
+                        android:id="@+id/navigator_all"
+                        android:background="#ffbebebe"
                         android:checked="false"
+                        android:button="@null"
                         android:layout_weight="1" />
 
                     <RadioButton
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
-                        android:text="New RadioButton"
-                        android:id="@+id/radioButton3"
-                        android:background="@android:drawable/button_onoff_indicator_off"
+                        android:gravity="center"
+                        android:text="complete"
+                        android:clickable="true"
+                        android:id="@+id/navigator_complete"
+                        android:background="#ffbebebe"
                         android:checked="false"
-                        android:layout_weight="1" />
+                        android:button="@null"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginRight="2dp" />
 
                     <RadioButton
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
-                        android:text="New RadioButton"
-                        android:id="@+id/radioButton2"
-                        android:layout_weight="1" />
+                        android:gravity="center"
+                        android:text="To Do"
+                        android:clickable="true"
+                        android:id="@+id/navigator_todo"
+                        android:layout_weight="1"
+                        android:button="@null"
+                        android:checked="false"
+                        android:background="#ffbebebe" />
                 </RadioGroup>
 
             </LinearLayout>
+
+            <Space
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="3" />
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -89,13 +108,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1">
 
-                <Space
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:background="#00ffffff"
-                    android:id="@+id/navigator_space" />
-
-                <android.support.v4.view.ViewPager
+                <ViewFlipper
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:id="@+id/navigator_preview_fragment"
@@ -103,7 +116,7 @@
                     android:fillViewport="false"/>
             </RelativeLayout>
         </LinearLayout>
-        <android.support.v4.view.ViewPager
+        <ViewFlipper
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:id="@+id/navigator_work_fragment"

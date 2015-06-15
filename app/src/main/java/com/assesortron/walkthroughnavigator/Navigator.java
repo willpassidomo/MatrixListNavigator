@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Space;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
@@ -31,6 +32,11 @@ public class Navigator extends Fragment {
     public static final int NUM_PREVIEW_FRAGS = 3;
     public static final int NUM_DISPLAY_FRAGS = 3;
 
+    public static final int UP = 1;
+    public static final int DOWN = 2;
+    public static final int LEFT = 3;
+    public static final int RIGHT = 4;
+
     private ParentListener parentListener;
     private Class<DisplayFragment> previewFragment;
     private Class<DisplayFragment> displayFragment;
@@ -44,6 +50,8 @@ public class Navigator extends Fragment {
     private Button allFilter;
     private Space fragmentOverlay;
     private List<List<List<DisplayObject>>> axisMatrix;
+
+    private GestureDetector touchListener;
 
     private Comparator<DisplayObject> axisOneComparator = new Comparator<DisplayObject>() {
         @Override
@@ -116,6 +124,7 @@ public class Navigator extends Fragment {
         if (getView() != null && getView().findViewById(R.id.navigator_preview_fragment) != null) {
             getFragmentManager().beginTransaction().add(R.id.navigator_preview_fragment, previewFragments.get(0));
         }
+
     }
 
     public void setDisplayFragments() throws IllegalAccessException, java.lang.InstantiationException {
@@ -206,36 +215,45 @@ public class Navigator extends Fragment {
                 Log.i("On Click ", "fired");
             }
         });
-        //TODO
-        //delete
-        previewFragmentSpace.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Log.i("OnLongClick", "fired");
-                return true;
-            }
-        });
-        //TODO
-        //delete
-        allFilter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i("OnClick", "fired");
-            }
-        });
 
         GestureDetector.OnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                Log.i("FLING EVENT", "");
+                String direction = "none";
+                switch (getDirection(velocityX, velocityY)) {
+                    case UP:
+                        displayPreviousFirstAxis();
+                        break;
+                    case DOWN:
+                        displayNextFirstAxis();
+                        break;
+                    case LEFT:
+                        displayPreviousSecondAxis();
+                        break;
+                    case RIGHT:
+                        displayNextSecondAxis();
+                        break;
+                    default:
+                        Toast.makeText(getActivity(), "fling not handled NAVIGATOR", Toast.LENGTH_SHORT).show();
+                }
                 return true;
+            }
+            @Override
+            public void onLongPress(MotionEvent e) {
+                Log.i("Long Press", "gesture detector");
+                Toast.makeText(getActivity(), "Long Press (gesture detector)", Toast.LENGTH_SHORT).show();
             }
         };
 
-        GestureDetector gd = new GestureDetector(getActivity(), gestureListener);
+        final GestureDetector gd = new GestureDetector(getActivity(), gestureListener);
 
-                //TODO
-        // CONTINUE!!
+        previewFragmentSpace.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.i("touch","");
+                return gd.onTouchEvent(event);
+            }
+        });
     }
 
     private void buildAxisMatrix(List<Comparable> a1, List<Comparable> a2,
@@ -261,6 +279,50 @@ public class Navigator extends Fragment {
         List<DisplayObject> li = new ArrayList<>(objList);
         Collections.sort(li, comparator);
         return li;
+    }
+
+    private void displayNextFirstAxis() {
+        Toast.makeText(getActivity(),"display next floor",Toast.LENGTH_SHORT).show();
+        //TODO
+    }
+
+    private void displayPreviousFirstAxis() {
+        Toast.makeText(getActivity(),"display previous floor",Toast.LENGTH_SHORT).show();
+        //TODO
+    }
+
+    private void displayNextSecondAxis() {
+        Toast.makeText(getActivity(),"display next area",Toast.LENGTH_SHORT).show();
+        //TODO
+    }
+
+    private void displayPreviousSecondAxis() {
+        Toast.makeText(getActivity(),"display previous area",Toast.LENGTH_SHORT).show();
+        //TODO
+    }
+
+    private int getDirection(float velocityX, float velocityY) {
+        if (velocityX > 0) {
+            if (Math.abs(velocityX) > Math.abs(velocityY)) {
+                return RIGHT;
+            } else {
+                if (velocityY < 0) {
+                    return UP;
+                } else {
+                    return DOWN;
+                }
+            }
+        } else {
+            if (Math.abs(velocityX) > Math.abs(velocityY)) {
+                return LEFT;
+            } else {
+                if (velocityY < 0) {
+                    return UP;
+                } else {
+                    return DOWN;
+                }
+            }
+        }
     }
 
 

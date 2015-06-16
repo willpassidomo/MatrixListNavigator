@@ -1,94 +1,92 @@
 package com.assesortron.walkthroughnavigator;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import static com.assesortron.walkthroughnavigator.Navigator.*;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PreviewFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PreviewFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class PreviewFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+public class PreviewFragment extends DisplayFragment<DisplayObject> {
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PreviewFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PreviewFragment newInstance(String param1, String param2) {
-        PreviewFragment fragment = new PreviewFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    TextView floor, area;
+    DisplayObject obj;
+    ParentListener parentListener;
 
     public PreviewFragment() {
-        // Required empty public constructor
+        Log.i("PreviewFragment","constructor");
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        Log.i("PreviewView", "OnCreate");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        Log.i("PreviewView", "OnCreateView");
         return inflater.inflate(R.layout.fragment_preview, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+
+    @Override
+    public void onActivityCreated(Bundle savedInstances) {
+        super.onActivityCreated(savedInstances);
+        Log.i("PreviewView", "OnActivityCreated");
+        if (getView() != null) {
+            floor = (TextView) getView().findViewById(R.id.preview_floor);
+            area = (TextView) getView().findViewById(R.id.preview_area);
+            if (obj != null) {
+                setFields();
+                parentListener.viewCreated(getView());
+            }
         }
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+        Intent intent = new Intent(getActivity(), WalkThrough.class);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+    }
+
+    private void setFields() {
+        floor.setText(obj.getAxis1Value().toString());
+        area.setText(obj.getAxis2Value().toString());
+    }
+
+    @Override
+    public void setObject(DisplayObject obj, ParentListener pl) {
+        this.obj = obj;
+        this.parentListener = pl;
+        if (getView() != null) {
+            setFields();
+            pl.viewCreated(getView());
+        }
+    }
+
+    @Override
+    public DisplayObject updateObject() {
+        return null;
+    }
+
+    @Override
+    DisplayFragment<DisplayObject> newInstance() {
+        return new PreviewFragment();
     }
 
     /**

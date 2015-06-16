@@ -39,9 +39,6 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
     public static final int LEFT = 3;
     public static final int RIGHT = 4;
 
-    private int axisOneIndex = 0;
-    private int axisTwoIndex = 0;
-
     private DisplayFragment.ParentListener parentListener;
     private DisplayFragment<DisplayObject> previewFragment;
     private DisplayFragment<DisplayObject> displayFragment;
@@ -50,12 +47,11 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
     private ViewFlipper workingFragmentSpace;
     private ViewFlipper previewFragmentSpace;
     private List<DisplayObject> objList;
-    private List<Comparable> axis1List, axis2List, axis3List;
     private Spinner axisOne, axisTwo, axisThree;
     private RadioButton completeFilter, toDoFilter;
     private Button allFilter;
     private Space fragmentOverlay;
-    private List<List<List<DisplayObject>>> axisMatrix;
+    private AxisMatrix axisMatrix;
 
     private GestureDetector touchListener;
 
@@ -166,7 +162,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                       DisplayFragment<DisplayObject> displayFragment) {
         this.previewFragment = previewFragment;
         this.displayFragment = displayFragment;
-        this.objList = obj;
+        axisMatrix = new AxisMatrix(obj);
         Log.i("Navigator", "SetUp");
 
         if(getView() != null) {
@@ -192,32 +188,13 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
     }
 
     private void setFields() {
-        Set<Comparable> axis1Values = new LinkedHashSet<>();
-        Set<Comparable> axis2Values = new LinkedHashSet<>();
-        Set<Comparable> axis3Values = new LinkedHashSet<>();
 
-        for (DisplayObject obj : objList) {
-            axis1Values.add(obj.getAxis1Value());
-            axis2Values.add(obj.getAxis2Value());
-            axis3Values.add(obj.getAxis3Value());
-        }
-
-        axis1List = new ArrayList<>(axis1Values);
-        axis2List = new ArrayList<>(axis2Values);
-        axis3List = new ArrayList<>(axis3Values);
-
-        Collections.sort(axis1List);
-        Collections.sort(axis2List);
-        Collections.sort(axis3List);
-
-        /* now we have sorted, unique lists of the 3 axis's
-         */
         ArrayAdapter<Comparable> a1 = new ArrayAdapter(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item, axis1List);
+                android.R.layout.simple_spinner_dropdown_item, axisMatrix.getAxisOne());
         ArrayAdapter<Comparable> a2 = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item, axis2List);
+                android.R.layout.simple_spinner_dropdown_item, axisMatrix.getAxisTwo());
         ArrayAdapter<Comparable> a3 = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item, axis3List);
+                android.R.layout.simple_spinner_dropdown_item, axisMatrix.getAxisThree());
 
 
         a1.insert(objList.get(0).axis1Name(), 0);
@@ -227,8 +204,6 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         axisOne.setAdapter(a1);
         axisTwo.setAdapter(a2);
         axisThree.setAdapter(a3);
-
-        buildAxisMatrix(axis1List,axis2List,objList);
 
         try {
             setPreviewFragments();
@@ -292,25 +267,6 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         });
     }
 
-    private void buildAxisMatrix(List<Comparable> a1, List<Comparable> a2,
-                                 List<DisplayObject> objs) {
-        axisMatrix = new ArrayList<>();
-        for (int i = 0; i < a1.size(); i++) {
-            axisMatrix.add(new ArrayList<List<DisplayObject>>());
-            for (int j = 0; j < a2.size(); j++) {
-                axisMatrix.get(i).add(new ArrayList<DisplayObject>());
-            }
-        }
-        for (DisplayObject obj: objs) {
-            axisMatrix.get(a1.indexOf(obj.getAxis1Value())).get(a2.indexOf(obj.getAxis2Value())).add(obj);
-        }
-        for (int i = 0; i < a1.size(); i++) {
-            for (int j = 0; j < a2.size(); j++) {
-                Collections.sort(axisMatrix.get(i).get(j), axisThreeComparator);
-            }
-        }
-    }
-
     private List<DisplayObject> orderBy (Comparator<DisplayObject> comparator) {
         List<DisplayObject> li = new ArrayList<>(objList);
         Collections.sort(li, comparator);
@@ -371,7 +327,114 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
 
 
 
+    public class AxisMatrix {
+        private List<List<List<DisplayObject>>> axisMatrix;
 
+        private List<Comparable> axis1;
+        private List<Comparable> axis2;
+        private List<Comparable> axis3;
+
+        private int axisOneIndex = 0;
+        private int axisTwoIndex = 0;
+
+
+        public AxisMatrix (List<DisplayObject> objs) {
+            getAxisSets(objs);
+            buildAxisMatrix(objs);
+        }
+
+        private void buildAxisMatrix(List<DisplayObject> objs) {
+            axisMatrix = new ArrayList<>();
+            for (int i = 0; i < axis1.size(); i++) {
+                axisMatrix.add(new ArrayList<List<DisplayObject>>());
+                for (int j = 0; j < axis2.size(); j++) {
+                    axisMatrix.get(i).add(new ArrayList<DisplayObject>());
+                }
+            }
+            for (DisplayObject obj : objs) {
+                axisMatrix.get(axis1.indexOf(obj.getAxis1Value())).get(axis2.indexOf(obj.getAxis2Value())).add(obj);
+            }
+            for (int i = 0; i < axis1.size(); i++) {
+                for (int j = 0; j < axis2.size(); j++) {
+                    Collections.sort(axisMatrix.get(i).get(j), axisThreeComparator);
+                }
+            }
+        }
+
+        private void getAxisSets(List<DisplayObject> objList) {
+            Set<Comparable> axis1Values = new LinkedHashSet<>();
+            Set<Comparable> axis2Values = new LinkedHashSet<>();
+            Set<Comparable> axis3Values = new LinkedHashSet<>();
+
+            for (DisplayObject obj : objList) {
+                axis1Values.add(obj.getAxis1Value());
+                axis2Values.add(obj.getAxis2Value());
+                axis3Values.add(obj.getAxis3Value());
+            }
+
+            axis1 = new ArrayList<>(axis1Values);
+            axis2 = new ArrayList<>(axis2Values);
+            axis3 = new ArrayList<>(axis3Values);
+
+            Collections.sort(axis1);
+            Collections.sort(axis2);
+            Collections.sort(axis3);
+        }
+
+        public List<DisplayObject> getFirst() {
+            return axisMatrix.get(0).get(0);
+        }
+
+        public List<DisplayObject>getNextFirstAxis() {
+            if (axisOneIndex >= axis1.size()) {
+                axisOneIndex = 0;
+            } else {
+                axisOneIndex++;
+            }
+            return get(axisOneIndex, axisTwoIndex);
+        }
+
+        public List<DisplayObject> getPreviousFirstAxis() {
+            if (axisOneIndex <= 0) {
+                axisOneIndex = axis1.size() - 1;
+            } else {
+                axisOneIndex--;
+            }
+            return get(axisOneIndex, axisTwoIndex);
+        }
+
+        public List<DisplayObject> getNextSecondAxis() {
+            if (axisTwoIndex >= axis2.size()) {
+                axisTwoIndex = 0;
+            } else {
+                axisTwoIndex++;
+            }
+            return get(axisOneIndex, axisTwoIndex);
+        }
+
+        public List<DisplayObject> getPreviousSecondAxis() {
+            if (axisTwoIndex <= 0) {
+                axisTwoIndex = axis2.size() - 1;
+            } else {
+                axisTwoIndex--;
+            }
+            return get(axisOneIndex, axisTwoIndex);
+        }
+
+        private List<DisplayObject> get(int axis1Loc, int axis2Loc) {
+            return axisMatrix.get(axis1Loc).get(axis2Loc);
+        }
+
+        public List<Comparable> getAxisOne() {
+            return axis1;
+        }
+        public List<Comparable> getAxisTwo() {
+            return axis2;
+        }
+        public List<Comparable> getAxisThree() {
+            return axis3;
+        }
+    }
 
 
     public interface DisplayObject {

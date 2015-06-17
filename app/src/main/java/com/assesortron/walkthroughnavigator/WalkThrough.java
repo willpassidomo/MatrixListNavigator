@@ -160,6 +160,15 @@ public class WalkThrough implements Navigator.DisplayObject {
         return this.Trade;
     }
 
+    @Override
+    public boolean isComplete() {
+        if (getProgress() == null) {
+            return true;
+        } else {
+            return !getProgress().equals("");
+        }
+    }
+
 //    public static abstract class WalkThroughEntry implements BaseColumns {
 //
 //        public static final String COLUMN_WALK_THROUGH_ID = "walkThroughID";

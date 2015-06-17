@@ -1,6 +1,7 @@
 package com.assesortron.walkthroughnavigator;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,15 +10,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.assesortron.walkthroughnavigator.Navigator.*;
 
 
 public class PreviewFragment extends DisplayFragment<DisplayObject> {
-
+    Context context;
     TextView floor, area;
-    DisplayObject obj;
+    ListView tradeList;
+    List<WalkThrough> objs;
     ParentListener parentListener;
 
     public PreviewFragment() {
@@ -44,9 +50,8 @@ public class PreviewFragment extends DisplayFragment<DisplayObject> {
         super.onActivityCreated(savedInstances);
         Log.i("PreviewView", "OnActivityCreated");
         if (getView() != null) {
-            floor = (TextView) getView().findViewById(R.id.preview_floor);
-            area = (TextView) getView().findViewById(R.id.preview_area);
-            if (obj != null) {
+            setVariables();
+            if (objs != null) {
                 setFields();
                 parentListener.viewCreated(getView());
             }
@@ -64,14 +69,27 @@ public class PreviewFragment extends DisplayFragment<DisplayObject> {
         super.onDetach();
     }
 
+    private void setVariables() {
+        floor = (TextView) getView().findViewById(R.id.preview_floor);
+        area = (TextView) getView().findViewById(R.id.preview_area);
+        tradeList = (ListView) getView().findViewById(R.id.preview_trade_list);
+    }
+
     private void setFields() {
-        floor.setText(obj.getAxis1Value().toString());
-        area.setText(obj.getAxis2Value().toString());
+        floor.setText(objs.get(0).getAxis1Value().toString());
+        area.setText(objs.get(0).getAxis2Value().toString());
+
+        TradeListAdapter tla = new TradeListAdapter(getActivity(), parentListener, objs);
+        tradeList.setAdapter(tla);
     }
 
     @Override
-    public void setObject(DisplayObject obj, ParentListener pl) {
-        this.obj = obj;
+    public void setObjects(List<DisplayObject> objs, ParentListener pl) {
+        List<WalkThrough> o = new ArrayList<>();
+        for (DisplayObject d: objs) {
+            o.add((WalkThrough)d);
+        }
+        this.objs = o;
         this.parentListener = pl;
         if (getView() != null) {
             setFields();

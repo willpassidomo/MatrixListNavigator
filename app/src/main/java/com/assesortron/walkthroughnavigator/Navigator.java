@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -41,6 +42,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
     public static final int LEFT = 3;
     public static final int RIGHT = 4;
 
+    private List<DisplayObject> objs;
     private DisplayFragment.ParentListener parentListener;
     private DisplayFragment<DisplayObject> previewFragment;
     private DisplayFragment<DisplayObject> displayFragment;
@@ -53,6 +55,8 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
     private Button allFilter;
     private Space fragmentOverlay;
     private AxisMatrix axisMatrix;
+
+    private int axis1Pos, axis2Pos, axis3Pos;
 
     private GestureDetector touchListener;
 
@@ -129,7 +133,9 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         if (previewFragments == null || previewFragments.isEmpty()) {
             for (int i = 0; i < NUM_PREVIEW_FRAGS; i++) {
                 DisplayFragment<DisplayObject> df = previewFragment.newInstance();
-                df.setObjects(axisMatrix.getFirst(), this);
+                if(!axisMatrix.isEmpty()) {
+                    df.setObjects(axisMatrix.getFirst(), this);
+                }
                 ft.add(df, previewTag(i));
             }
             ft.commit();
@@ -175,6 +181,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                       DisplayFragment<DisplayObject> displayFragment) {
         this.previewFragment = previewFragment;
         this.displayFragment = displayFragment;
+        objs = obj;
         axisMatrix = new AxisMatrix(obj);
         Log.i("Navigator", "SetUp");
 
@@ -210,14 +217,25 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         ArrayAdapter<Comparable> a3 = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_spinner_dropdown_item, axisMatrix.getAxisThree());
 
+        a1.insert(objs.get(0).axis1Name(), 0);
+        a2.insert(objs.get(0).axis2Name(), 0);
+        a3.insert(objs.get(0).axis3Name(), 0);
 
-        a1.insert(axisMatrix.getFirst().get(0).axis1Name(), 0);
-        a2.insert(axisMatrix.getFirst().get(0).axis2Name(), 0);
-        a3.insert(axisMatrix.getFirst().get(0).axis3Name(), 0);
+        AdapterView.OnItemSelectedListener a1Lis = axisOne.getOnItemSelectedListener();
+        AdapterView.OnItemSelectedListener a2Lis = axisTwo.getOnItemSelectedListener();
+        AdapterView.OnItemSelectedListener a3List = axisThree.getOnItemSelectedListener();
+
+        axisOne.setOnItemSelectedListener(null);
+        axisTwo.setOnItemSelectedListener(null);
+        axisThree.setOnItemSelectedListener(null);
 
         axisOne.setAdapter(a1);
         axisTwo.setAdapter(a2);
         axisThree.setAdapter(a3);
+
+        axisOne.setOnItemSelectedListener(a1Lis);
+        axisTwo.setOnItemSelectedListener(a2Lis);
+        axisThree.setOnItemSelectedListener(a3List);
 
 //        previewFragment.setObjects(axisMatrix.getFirst(), this);
 //        FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -225,7 +243,9 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
 //        ft.commit();
 
         try {
-            setPreviewFragments();
+            if (previewFragments == null || previewFragments.isEmpty()) {
+                setPreviewFragments();
+            }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (java.lang.InstantiationException e) {
@@ -240,6 +260,8 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
             public void onClick(View v) {
                 completeFilter.setSelected(false);
                 toDoFilter.setSelected(false);
+                axisMatrix = new AxisMatrix(objs);
+
             }
         });
         completeFilter.setOnClickListener(new View.OnClickListener() {
@@ -247,6 +269,14 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
             public void onClick(View v) {
                 allFilter.setSelected(false);
                 toDoFilter.setSelected(false);
+                List<DisplayObject> completeObjs = new ArrayList<DisplayObject>();
+                for (DisplayObject d : objs) {
+                    if (d.isComplete()) {
+                        completeObjs.add(d);
+                    }
+                }
+                axisMatrix = new AxisMatrix(completeObjs);
+                setFields();
             }
         });
         toDoFilter.setOnClickListener(new View.OnClickListener() {
@@ -254,6 +284,80 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
             public void onClick(View v) {
                 allFilter.setSelected(false);
                 completeFilter.setSelected(false);
+                List<DisplayObject> incompleteObjs = new ArrayList<DisplayObject>();
+                for (DisplayObject d : objs) {
+                    if (!d.isComplete()) {
+                        incompleteObjs.add(d);
+                    }
+                }
+                axisMatrix = new AxisMatrix(incompleteObjs);
+                setFields();
+            }
+        });
+
+
+        axisOne.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position !=  axis1Pos) {
+                    Log.i("AxisOne fired", "Position- " + position + " Stored -" + axis1Pos);
+                    axis1Pos = position;
+                    //axisOne.setOnItemSelectedListener(null);
+                    filter();
+                    if (position > 0) {
+                        axis1Pos = 1;
+                    } else {
+                        axis1Pos = 0;
+                    }
+                    setSelections();
+                    //axisOne.setOnItemSelectedListener(this);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        axisTwo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position != axis2Pos) {
+                    Log.i("AxisTwo fired", "Position- " + position + " Stored -" + axis2Pos);
+                    axis2Pos = position;
+                    //axisTwo.setOnItemSelectedListener(null);
+                    filter();
+                    if (position > 0) {
+                        axis2Pos = 1;
+                    } else {
+                        axis2Pos = 0;
+                    }
+                    setSelections();
+                    //axisTwo.setOnItemSelectedListener(this);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        axisThree.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position != axis3Pos) {
+                    Log.i("AxisThree fired", "Position- " + position + " Stored -" + axis3Pos);
+                    axis3Pos = position;
+                    //axisThree.setOnItemSelectedListener(null);
+                    filter();
+                    if (position > 0) {
+                        axis3Pos = 1;
+                    } else {
+                        axis3Pos = 0;
+                    }
+                    setSelections();
+                   // axisThree.setOnItemSelectedListener(this);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.i("Nothing SEECTED","");
             }
         });
 
@@ -295,6 +399,57 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                 return gd.onTouchEvent(event);
             }
         });
+    }
+
+    private void setSelections() {
+        axisOne.setSelection(axis1Pos);
+        axisTwo.setSelection(axis2Pos);
+        axisThree.setSelection(axis3Pos);
+    }
+
+    private void filter() {
+        Log.i("Filtering", "stuff");
+        int a1Pos = axisOne.getSelectedItemPosition();
+        int a2Pos = axisTwo.getSelectedItemPosition();
+        int a3Pos = axisThree.getSelectedItemPosition();
+        Log.i("A1 Filter", "selected- " + a1Pos + " stored selected- " + axis1Pos);
+        Log.i("A2 Filter", "selected- " + a2Pos + " stored selected- " + axis2Pos);
+        Log.i("A3 Filter", "selected- " + a3Pos + " stored selected- " + axis3Pos);
+
+        String selection1 = null;
+        String selection2 = null;
+        String selection3 = null;
+
+        List<DisplayObject> filtered = new ArrayList<>(objs);
+        Set<DisplayObject> toRemove = new LinkedHashSet<>();
+
+        //WHY DOES IT KEEP ON REPEATING AND REPEATING AFTER I SELECT FROM SPINNER ??????????
+
+        if (a1Pos > 0) {
+            selection1 = axisOne.getSelectedItem().toString();
+        }
+        if (a2Pos > 0) {
+            selection2 = axisTwo.getSelectedItem().toString();
+        }
+        if (a3Pos > 0) {
+            selection3 = axisThree.getSelectedItem().toString();
+        }
+        for (DisplayObject d : objs) {
+            if (selection1 != null && !d.getAxis1Value().equals(selection1)) {
+                toRemove.add(d);
+            }
+            if (selection2 != null && !d.getAxis2Value().equals(selection2)) {
+                toRemove.add(d);
+            }
+            if (selection3 != null && !d.getAxis3Value().equals(selection3)) {
+                toRemove.add(d);
+            }
+        }
+        for (DisplayObject d : toRemove) {
+            filtered.remove(d);
+        }
+        axisMatrix = new AxisMatrix(filtered);
+        setFields();
     }
 
 //    private List<DisplayObject> orderBy (Comparator<DisplayObject> comparator) {
@@ -408,8 +563,11 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         private int axisOneIndex = 0;
         private int axisTwoIndex = 0;
 
+        private boolean isEmpty;
+
 
         public AxisMatrix (List<DisplayObject> objs) {
+            isEmpty = objs.isEmpty();
             Log.i("Axis Matrix constructor", objs.size() + " items");
             getAxisSets(objs);
             buildAxisMatrix(objs);
@@ -451,6 +609,10 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
             Collections.sort(axis1);
             Collections.sort(axis2);
             Collections.sort(axis3);
+        }
+
+        public boolean isEmpty() {
+            return isEmpty;
         }
 
         /***

@@ -2,6 +2,7 @@ package com.assesortron.walkthroughnavigator;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,7 +81,7 @@ public class TradeListAdapter implements ListAdapter {
         final WalkThrough wt = objs.get(position);
 
         trade.setText(wt.getTrade());
-        complete.setSelected(wt.isComplete());
+        complete.setChecked(wt.isComplete());
         complete.setClickable(false);
 
         view.setOnClickListener(new View.OnClickListener() {

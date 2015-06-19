@@ -61,7 +61,6 @@ public class PreviewFragment extends DisplayFragment<DisplayObject> {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        Intent intent = new Intent(getActivity(), WalkThrough.class);
     }
 
     @Override

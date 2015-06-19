@@ -195,7 +195,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
     private void setVariables() {
         Log.i("Navigator", "setVariables");
         previewFragmentSpace = (ViewFlipper) getView().findViewById(R.id.navigator_preview_fragment);
-        workingFragmentSpace = (ViewFlipper) getView().findViewById(R.id.navigator_work_fragment);
+        //workingFragmentSpace = (ViewFlipper) getView().findViewById(R.id.navigator_work_fragment);
 
         axisOne = (Spinner) getView().findViewById(R.id.navigator_axis_one);
         axisTwo = (Spinner) getView().findViewById(R.id.navigator_axis_two);
@@ -364,7 +364,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         GestureDetector.OnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                String direction = "none";
+                Log.i("OnFlingEvent", "");
                 switch (getDirection(velocityX, velocityY)) {
                     case UP:
                         displayNextFirstAxis();
@@ -383,19 +383,25 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                 }
                 return true;
             }
+
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
+
             @Override
             public void onLongPress(MotionEvent e) {
-                Log.i("Long Press", "gesture detector");
                 Toast.makeText(getActivity(), "Long Press (gesture detector)", Toast.LENGTH_SHORT).show();
             }
         };
 
         final GestureDetector gd = new GestureDetector(getActivity(), gestureListener);
 
+
         previewFragmentSpace.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.i("touch", "");
+                Log.i("touch", "ON TOUCH EVENT");
                 return gd.onTouchEvent(event);
             }
         });
@@ -504,7 +510,8 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         previewFragmentSpace.setInAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.left_in));
         previewFragmentSpace.setOutAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.right_out));
         DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>)getFragmentManager().findFragmentByTag(previewTag(viewIndex++ % 3));
-        df.setObjects(data, this);        Toast.makeText(getActivity(),"display previous area",Toast.LENGTH_SHORT).show();
+        df.setObjects(data, this);
+        Toast.makeText(getActivity(),"display previous area",Toast.LENGTH_SHORT).show();
         //TODO
     }
 
@@ -636,7 +643,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         }
 
         public List<DisplayObject>getNextFirstAxis() {
-            if (axisOneIndex >= axis1.size()) {
+            if (axisOneIndex >= axisMatrix.size() - 1) {
                 axisOneIndex = 0;
             } else {
                 axisOneIndex++;
@@ -646,7 +653,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
 
         public List<DisplayObject> getPreviousFirstAxis() {
             if (axisOneIndex <= 0) {
-                axisOneIndex = (axis1.size() - 2);
+                axisOneIndex = (axisMatrix.size() - 1);
             } else {
                 axisOneIndex--;
             }

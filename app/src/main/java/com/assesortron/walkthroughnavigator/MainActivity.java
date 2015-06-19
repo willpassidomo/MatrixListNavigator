@@ -26,9 +26,9 @@ public class MainActivity extends ActionBarActivity {
 
         List<Navigator.DisplayObject> displayObjects = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
-            displayObjects.add(new WalkThrough(i+"", "living Room",  "Electric"));
-            displayObjects.add(new WalkThrough(i +"", "living Room", "Framing"));
-            displayObjects.add(new WalkThrough(i+"", "living Room", "Plumbing"));
+            displayObjects.add(new WalkThrough(i+"", "Living Room",  "Electric"));
+            displayObjects.add(new WalkThrough(i +"", "Living Room", "Framing"));
+            displayObjects.add(new WalkThrough(i+"", "Living Room", "Plumbing"));
             displayObjects.add(new WalkThrough(i+"", "Bedroom",  "Electric"));
             displayObjects.add(new WalkThrough(i +"", "Bedroom", "Framing"));
             displayObjects.add(new WalkThrough(i+"", "Bedroom", "Plumbing"));

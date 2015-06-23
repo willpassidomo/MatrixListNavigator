@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Space;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -42,12 +43,12 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
     public static final int LEFT = 3;
     public static final int RIGHT = 4;
 
+    private TextView numFields;
     private List<DisplayObject> objs;
     private DisplayFragment.ParentListener parentListener;
     private DisplayFragment<DisplayObject> previewFragment;
     private DisplayFragment<DisplayObject> displayFragment;
     private List<DisplayFragment<DisplayObject>> previewFragments = new ArrayList<>();
-    private List<DisplayFragment<DisplayObject>> displayFragments = new ArrayList<>();
     private ViewFlipper workingFragmentSpace;
     private ViewFlipper previewFragmentSpace;
     private Spinner axisOne, axisTwo, axisThree;
@@ -195,6 +196,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
     private void setVariables() {
         Log.i("Navigator", "setVariables");
         previewFragmentSpace = (ViewFlipper) getView().findViewById(R.id.navigator_preview_fragment);
+        numFields = (TextView) getView().findViewById(R.id.navigator_num_items);
         //workingFragmentSpace = (ViewFlipper) getView().findViewById(R.id.navigator_work_fragment);
 
         axisOne = (Spinner) getView().findViewById(R.id.navigator_axis_one);
@@ -210,6 +212,9 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
 
     private void setFields() {
         Log.i("Navigator", "setFields");
+
+        numFields.setText(axisMatrix.getSize() + "");
+
         ArrayAdapter<Comparable> a1 = new ArrayAdapter(getActivity(),
                 android.R.layout.simple_spinner_dropdown_item, axisMatrix.getAxisOne());
         ArrayAdapter<Comparable> a2 = new ArrayAdapter<>(getActivity(),
@@ -260,8 +265,8 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
             public void onClick(View v) {
                 completeFilter.setSelected(false);
                 toDoFilter.setSelected(false);
-                axisMatrix = new AxisMatrix(objs);
-
+                filter(objs);
+                setSelections();
             }
         });
         completeFilter.setOnClickListener(new View.OnClickListener() {
@@ -275,8 +280,9 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                         completeObjs.add(d);
                     }
                 }
-                axisMatrix = new AxisMatrix(completeObjs);
-                setFields();
+                Log.i("Complete", "filtered " + completeObjs.size() + " out of " +objs.size());
+                filter(completeObjs);
+                setSelections();
             }
         });
         toDoFilter.setOnClickListener(new View.OnClickListener() {
@@ -290,8 +296,9 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                         incompleteObjs.add(d);
                     }
                 }
-                axisMatrix = new AxisMatrix(incompleteObjs);
-                setFields();
+                Log.i("To Do", "filtered " + incompleteObjs.size() + " out of " +objs.size());
+                filter(incompleteObjs);
+                setSelections();
             }
         });
 
@@ -303,7 +310,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                     Log.i("AxisOne fired", "Position- " + position + " Stored -" + axis1Pos);
                     axis1Pos = position;
                     //axisOne.setOnItemSelectedListener(null);
-                    filter();
+                    filter(objs);
                     if (position > 0) {
                         axis1Pos = 1;
                     } else {
@@ -322,15 +329,13 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                 if (position != axis2Pos) {
                     Log.i("AxisTwo fired", "Position- " + position + " Stored -" + axis2Pos);
                     axis2Pos = position;
-                    //axisTwo.setOnItemSelectedListener(null);
-                    filter();
+                    filter(objs);
                     if (position > 0) {
                         axis2Pos = 1;
                     } else {
                         axis2Pos = 0;
                     }
                     setSelections();
-                    //axisTwo.setOnItemSelectedListener(this);
                 }
             }
 
@@ -344,14 +349,13 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                     Log.i("AxisThree fired", "Position- " + position + " Stored -" + axis3Pos);
                     axis3Pos = position;
                     //axisThree.setOnItemSelectedListener(null);
-                    filter();
+                    filter(objs);
                     if (position > 0) {
                         axis3Pos = 1;
                     } else {
                         axis3Pos = 0;
                     }
                     setSelections();
-                   // axisThree.setOnItemSelectedListener(this);
                 }
             }
 
@@ -361,6 +365,8 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
             }
         });
 
+        // Gesture Detector used to detect left and right swipes on the Preview Fragment. this
+        //translates into the viewpager showing the next element (up,down,left,right)
         GestureDetector.OnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -407,14 +413,24 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         });
     }
 
+    /**
+     * need to call this after the filter is applied and the spinners are updated. this could have
+     * been part of the setFields() method, but in order to abstract filter, it had to be seperate because,
+     * filter needs to check that spinner selection matches the marked one (axis(123)Pos), BUT after
+     * the spinners are updated, the spinner whoes listenere triggered the filter will now only contain
+     * 1 element, as the others are inherently filtered out. so, after the filter and set fields, the
+     * axis(123)Pos is set to 1, not the originially selecte position, this is a translation from old
+     * state to new state. now the spinners must be set to the proper selection so the spinner doesnt
+     * trigger, as if the 0th element had been selected. F'in spinners..their listeners really suck
+     */
     private void setSelections() {
         axisOne.setSelection(axis1Pos);
         axisTwo.setSelection(axis2Pos);
         axisThree.setSelection(axis3Pos);
     }
 
-    private void filter() {
-        Log.i("Filtering", "stuff");
+    private void filter(List<DisplayObject> objects) {
+        Log.i("Filtering", objects.size() + " objects");
         int a1Pos = axisOne.getSelectedItemPosition();
         int a2Pos = axisTwo.getSelectedItemPosition();
         int a3Pos = axisThree.getSelectedItemPosition();
@@ -426,7 +442,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         String selection2 = null;
         String selection3 = null;
 
-        List<DisplayObject> filtered = new ArrayList<>(objs);
+        List<DisplayObject> filtered = new ArrayList<>(objects);
         Set<DisplayObject> toRemove = new LinkedHashSet<>();
 
         //WHY DOES IT KEEP ON REPEATING AND REPEATING AFTER I SELECT FROM SPINNER ??????????
@@ -440,14 +456,14 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         if (a3Pos > 0) {
             selection3 = axisThree.getSelectedItem().toString();
         }
-        for (DisplayObject d : objs) {
-            if (selection1 != null && !d.getAxis1Value().equals(selection1)) {
+        for (DisplayObject d : objects) {
+            if (selection1 != null && !d.getAxis1Value().toString().equals(selection1.toString())) {
                 toRemove.add(d);
             }
-            if (selection2 != null && !d.getAxis2Value().equals(selection2)) {
+            if (selection2 != null && !d.getAxis2Value().toString().equals(selection2.toString())) {
                 toRemove.add(d);
             }
-            if (selection3 != null && !d.getAxis3Value().equals(selection3)) {
+            if (selection3 != null && !d.getAxis3Value().toString().equals(selection3.toString())) {
                 toRemove.add(d);
             }
         }
@@ -473,46 +489,50 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
 //    }
 
     private void displayNextFirstAxis() {
-        List<DisplayObject> data = axisMatrix.getNextFirstAxis();
-        previewFragmentSpace.setInAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_slide_in_bottom));
-        previewFragmentSpace.setOutAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_slide_out_top));
-        DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>)getFragmentManager().findFragmentByTag(previewTag(viewIndex++ % 3));
-        df.setObjects(data, this);
+        if (axisMatrix.getFirstAxisCount() > 1) {
+            List<DisplayObject> data = axisMatrix.getNextFirstAxis();
+            previewFragmentSpace.setInAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_slide_in_bottom));
+            previewFragmentSpace.setOutAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_slide_out_top));
+            DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>) getFragmentManager().findFragmentByTag(previewTag(viewIndex++ % 3));
+            df.setObjects(data, this);
+        }
 //        previewFragmentSpace.setOutAnimation(getActivity(),android.R.anim.fade_out);
         Toast.makeText(getActivity(),"display next floor",Toast.LENGTH_SHORT).show();
-        //TODO
     }
 
     private void displayPreviousFirstAxis() {
-        List<DisplayObject> data = axisMatrix.getPreviousFirstAxis();
-        previewFragmentSpace.setInAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_slide_in_top));
-        previewFragmentSpace.setOutAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_slide_out_bottom));
-        DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>)getFragmentManager().findFragmentByTag(previewTag(viewIndex++%3));
-        df.setObjects(data, this);
+        if (axisMatrix.getFirstAxisCount() > 1) {
+            List<DisplayObject> data = axisMatrix.getPreviousFirstAxis();
+            previewFragmentSpace.setInAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_slide_in_top));
+            previewFragmentSpace.setOutAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_slide_out_bottom));
+            DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>) getFragmentManager().findFragmentByTag(previewTag(viewIndex++ % 3));
+            df.setObjects(data, this);
+        }
 //        previewFragments.get(viewIndex++%3).setObjects(data, this);
   //      previewFragmentSpace.animate();
         Toast.makeText(getActivity(),"display previous floor",Toast.LENGTH_SHORT).show();
-        //TODO
     }
 
     private void displayNextSecondAxis() {
-        List<DisplayObject> data = axisMatrix.getNextSecondAxis();
-        previewFragmentSpace.setInAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.right_in));
-        previewFragmentSpace.setOutAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.left_out));
-        DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>)getFragmentManager().findFragmentByTag(previewTag(viewIndex++ % 3));
-        df.setObjects(data, this);
+        if (axisMatrix.getSecondAxisCount() > 1) {
+            List<DisplayObject> data = axisMatrix.getNextSecondAxis();
+            previewFragmentSpace.setInAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.right_in));
+            previewFragmentSpace.setOutAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.left_out));
+            DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>) getFragmentManager().findFragmentByTag(previewTag(viewIndex++ % 3));
+            df.setObjects(data, this);
+        }
         Toast.makeText(getActivity(),"display next area",Toast.LENGTH_SHORT).show();
-        //TODO
     }
 
     private void displayPreviousSecondAxis() {
-        List<DisplayObject> data = axisMatrix.getPreviousSecondAxis();
-        previewFragmentSpace.setInAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.left_in));
-        previewFragmentSpace.setOutAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.right_out));
-        DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>)getFragmentManager().findFragmentByTag(previewTag(viewIndex++ % 3));
-        df.setObjects(data, this);
+        if (axisMatrix.getSecondAxisCount() > 1) {
+            List<DisplayObject> data = axisMatrix.getPreviousSecondAxis();
+            previewFragmentSpace.setInAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.left_in));
+            previewFragmentSpace.setOutAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.right_out));
+            DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>) getFragmentManager().findFragmentByTag(previewTag(viewIndex++ % 3));
+            df.setObjects(data, this);
+        }
         Toast.makeText(getActivity(),"display previous area",Toast.LENGTH_SHORT).show();
-        //TODO
     }
 
     private int getDirection(float velocityX, float velocityY) {
@@ -555,13 +575,15 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
     public void display(DisplayObject obj) {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
 
-        Toast.makeText(getActivity(), "Object Displaying!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), obj.displayMessage(), Toast.LENGTH_SHORT).show();
     }
 
 
 
     public class AxisMatrix {
         private List<List<List<DisplayObject>>> axisMatrix;
+        private List<DisplayObject> axisObjects;
+        private int size;
 
         private List<Comparable> axis1;
         private List<Comparable> axis2;
@@ -574,6 +596,8 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
 
 
         public AxisMatrix (List<DisplayObject> objs) {
+            axisObjects = objs;
+            size = objs.size();
             isEmpty = objs.isEmpty();
             Log.i("Axis Matrix constructor", objs.size() + " items");
             getAxisSets(objs);
@@ -618,8 +642,17 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
             Collections.sort(axis3);
         }
 
+        public List<DisplayObject> getAxisObjects() {
+            return axisObjects;
+        }
+
         public boolean isEmpty() {
             return isEmpty;
+        }
+
+
+        public int getSize() {
+            return size;
         }
 
         /***
@@ -627,7 +660,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
          * @return the size of the first axis
          */
         public int getFirstAxisCount() {
-            return axis1.size();
+            return axisMatrix.size();
         }
 
         /**
@@ -708,6 +741,8 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         public Comparable getAxis3Value();
 
         public boolean isComplete();
+
+        public String displayMessage();
 
     }
 

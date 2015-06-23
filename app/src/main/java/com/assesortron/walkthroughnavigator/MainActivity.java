@@ -26,15 +26,18 @@ public class MainActivity extends ActionBarActivity {
 
         List<Navigator.DisplayObject> displayObjects = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
-            displayObjects.add(new WalkThrough(i+"", "Living Room",  "Electric"));
-            displayObjects.add(new WalkThrough(i +"", "Living Room", "Framing"));
-            displayObjects.add(new WalkThrough(i+"", "Living Room", "Plumbing"));
-            displayObjects.add(new WalkThrough(i+"", "Bedroom",  "Electric"));
-            displayObjects.add(new WalkThrough(i +"", "Bedroom", "Framing"));
-            displayObjects.add(new WalkThrough(i+"", "Bedroom", "Plumbing"));
-            displayObjects.add(new WalkThrough(i+"", "Dining Room",  "Electric"));
-            displayObjects.add(new WalkThrough(i +"", "Dining Room", "Framing"));
-            displayObjects.add(new WalkThrough(i+"", "Dining Room", "Plumbing"));
+            displayObjects.add(new TestData(i, "Living Room",  "Electric",false));
+            displayObjects.add(new TestData(i, "Living Room", "Framing", false));
+            displayObjects.add(new TestData(i, "Living Room", "Plumbing", true));
+            displayObjects.add(new TestData(i, "Bathroom", "Rough Plumbing", true));
+            displayObjects.add(new TestData(i, "Bathroom", "Finish Plumbing", false));
+            displayObjects.add(new TestData(i, "Bathroom",  "Framing",true));
+            displayObjects.add(new TestData(i, "Bathroom",  "Electric",true));
+            displayObjects.add(new TestData(i, "Bedroom",  "Electric", true));
+            displayObjects.add(new TestData(i, "Bedroom", "Framing", true));
+            displayObjects.add(new TestData(i, "Dining Room",  "Electric", true));
+            displayObjects.add(new TestData(i, "Dining Room", "Framing", true));
+            displayObjects.add(new TestData(i, "Dining Room", "Plumbing", false));
 
         }
 

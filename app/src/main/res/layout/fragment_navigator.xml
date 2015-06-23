@@ -25,8 +25,7 @@
                 <RadioGroup
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="10dp">
+                    android:orientation="horizontal">
 
                     <Button
                         android:layout_width="fill_parent"
@@ -69,11 +68,6 @@
 
             </LinearLayout>
 
-            <Space
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="3" />
-
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
@@ -102,6 +96,38 @@
                     android:layout_weight="1"
                     android:spinnerMode="dropdown" />
             </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="3" >
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Items:"
+                        android:id="@+id/textView"
+                        android:textSize="20dp"
+                        android:layout_alignTop="@+id/navigator_num_items"
+                        android:layout_toLeftOf="@+id/navigator_num_items"
+                        android:layout_toStartOf="@+id/navigator_num_items" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="Large Text"
+                        android:id="@+id/navigator_num_items"
+                        android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true" />
+                </LinearLayout>
+            </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"

@@ -2,7 +2,6 @@ package com.assesortron.walkthroughnavigator;
 
 import android.content.Context;
 import android.database.DataSetObserver;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +18,10 @@ import com.assesortron.walkthroughnavigator.DisplayFragment.ParentListener;
 public class TradeListAdapter implements ListAdapter {
 
     Context context;
-    List<WalkThrough> objs;
+    List<Navigator.DisplayObject> objs;
     ParentListener parentListener;
 
-    TradeListAdapter(Context context, ParentListener parentListener, List<WalkThrough> objs) {
+    TradeListAdapter(Context context, ParentListener parentListener, List<Navigator.DisplayObject> objs) {
         this.context = context;
         this.parentListener = parentListener;
         this.objs = objs;
@@ -75,12 +74,12 @@ public class TradeListAdapter implements ListAdapter {
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = infalInfalter.inflate(R.layout.list_preview_trades, null);
         }
-        TextView trade = (TextView)view.findViewById(R.id.trade_name);
+        TextView axis3 = (TextView)view.findViewById(R.id.preview_axis_three_label);
         CheckBox complete = (CheckBox)view.findViewById(R.id.trade_entry_compete);
 
-        final WalkThrough wt = objs.get(position);
+        final Navigator.DisplayObject wt = objs.get(position);
 
-        trade.setText(wt.getTrade());
+        axis3.setText(wt.getAxis3Value().toString());
         complete.setChecked(wt.isComplete());
         complete.setClickable(false);
 

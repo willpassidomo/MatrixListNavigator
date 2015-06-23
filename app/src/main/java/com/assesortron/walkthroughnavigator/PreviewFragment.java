@@ -21,9 +21,9 @@ import static com.assesortron.walkthroughnavigator.Navigator.*;
 
 public class PreviewFragment extends DisplayFragment<DisplayObject> {
     Context context;
-    TextView floor, area;
-    ListView tradeList;
-    List<WalkThrough> objs;
+    TextView axisOneLabel, axisTwoLabel, axisThreeLabel, axisOneVal, axisTwoVal;
+    ListView axisThreeList;
+    List<DisplayObject> objs;
     ParentListener parentListener;
 
     public PreviewFragment() {
@@ -69,26 +69,30 @@ public class PreviewFragment extends DisplayFragment<DisplayObject> {
     }
 
     private void setVariables() {
-        floor = (TextView) getView().findViewById(R.id.preview_floor);
-        area = (TextView) getView().findViewById(R.id.preview_area);
-        tradeList = (ListView) getView().findViewById(R.id.preview_trade_list);
+        axisOneVal = (TextView) getView().findViewById(R.id.preview_axis_one_val);
+        axisTwoVal = (TextView) getView().findViewById(R.id.preview_axis_two_val);
+        axisThreeList = (ListView) getView().findViewById(R.id.preview_axis_three_list);
+
+        axisOneLabel = (TextView) getView().findViewById(R.id.preview_axis_one_label);
+        axisTwoLabel = (TextView) getView().findViewById(R.id.preview_axis_two_label);
+        axisThreeLabel = (TextView) getView().findViewById(R.id.preview_axis_three_label);
     }
 
     private void setFields() {
-        floor.setText(objs.get(0).getAxis1Value().toString());
-        area.setText(objs.get(0).getAxis2Value().toString());
+        axisOneLabel.setText(objs.get(0).axis1Name());
+        axisTwoLabel.setText(objs.get(0).axis2Name());
+        axisThreeLabel.setText(objs.get(0).axis3Name().toUpperCase());
+
+        axisOneVal.setText(objs.get(0).getAxis1Value().toString());
+        axisTwoVal.setText(objs.get(0).getAxis2Value().toString());
 
         TradeListAdapter tla = new TradeListAdapter(getActivity(), parentListener, objs);
-        tradeList.setAdapter(tla);
+        axisThreeList.setAdapter(tla);
     }
 
     @Override
     public void setObjects(List<DisplayObject> objs, ParentListener pl) {
-        List<WalkThrough> o = new ArrayList<>();
-        for (DisplayObject d: objs) {
-            o.add((WalkThrough)d);
-        }
-        this.objs = o;
+        this.objs = objs;
         this.parentListener = pl;
         if (getView() != null) {
             setFields();

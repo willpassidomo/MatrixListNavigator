@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/WalkThroughNavigator.iml" filepath="$PROJECT_DIR$/WalkThroughNavigator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MatrixListNavigator.iml" filepath="$PROJECT_DIR$/MatrixListNavigator.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

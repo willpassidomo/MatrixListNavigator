@@ -309,7 +309,6 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                 if (position !=  axis1Pos) {
                     Log.i("AxisOne fired", "Position- " + position + " Stored -" + axis1Pos);
                     axis1Pos = position;
-                    //axisOne.setOnItemSelectedListener(null);
                     filter(objs);
                     if (position > 0) {
                         axis1Pos = 1;
@@ -317,7 +316,6 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                         axis1Pos = 0;
                     }
                     setSelections();
-                    //axisOne.setOnItemSelectedListener(this);
                 }
             }
             @Override
@@ -348,7 +346,6 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
                 if (position != axis3Pos) {
                     Log.i("AxisThree fired", "Position- " + position + " Stored -" + axis3Pos);
                     axis3Pos = position;
-                    //axisThree.setOnItemSelectedListener(null);
                     filter(objs);
                     if (position > 0) {
                         axis3Pos = 1;
@@ -470,8 +467,12 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         for (DisplayObject d : toRemove) {
             filtered.remove(d);
         }
-        axisMatrix = new AxisMatrix(filtered);
-        setFields();
+        if (filtered.isEmpty()) {
+            Toast.makeText(getActivity(), "There no fields to display", Toast.LENGTH_SHORT).show();
+        } else {
+            axisMatrix = new AxisMatrix(filtered);
+            setFields();
+        }
     }
 
 //    private List<DisplayObject> orderBy (Comparator<DisplayObject> comparator) {
@@ -497,7 +498,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
             df.setObjects(data, this);
         }
 //        previewFragmentSpace.setOutAnimation(getActivity(),android.R.anim.fade_out);
-        Toast.makeText(getActivity(),"display next floor",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getActivity(),"display next floor",Toast.LENGTH_SHORT).show();
     }
 
     private void displayPreviousFirstAxis() {
@@ -510,7 +511,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         }
 //        previewFragments.get(viewIndex++%3).setObjects(data, this);
   //      previewFragmentSpace.animate();
-        Toast.makeText(getActivity(),"display previous floor",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getActivity(),"display previous floor",Toast.LENGTH_SHORT).show();
     }
 
     private void displayNextSecondAxis() {
@@ -521,7 +522,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
             DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>) getFragmentManager().findFragmentByTag(previewTag(viewIndex++ % 3));
             df.setObjects(data, this);
         }
-        Toast.makeText(getActivity(),"display next area",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getActivity(),"display next area",Toast.LENGTH_SHORT).show();
     }
 
     private void displayPreviousSecondAxis() {
@@ -532,7 +533,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
             DisplayFragment<DisplayObject> df = (DisplayFragment<DisplayObject>) getFragmentManager().findFragmentByTag(previewTag(viewIndex++ % 3));
             df.setObjects(data, this);
         }
-        Toast.makeText(getActivity(),"display previous area",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getActivity(),"display previous area",Toast.LENGTH_SHORT).show();
     }
 
     private int getDirection(float velocityX, float velocityY) {
@@ -729,9 +730,6 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
 
     public interface DisplayObject {
 
-        /*
-         * get the number of columns this should be organizable by
-         */
         public String axis1Name();
         public String axis2Name();
         public String axis3Name();

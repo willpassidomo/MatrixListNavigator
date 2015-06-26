@@ -1,5 +1,11 @@
 # MatrixListNavigator
-to set up this Fragment, add the fragment to your activity and call the 
+to set up this Fragment, create a new Navigator instance
+```java
+Navigator nav = new Navigator(List<DisplayObject> objs, DisplayFragment df);
+```
+
+add it to your activity, and call the
+
 ```java
 setup(List<DisplayObject> dos, DisplayFragment df);
 ```

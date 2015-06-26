@@ -41,7 +41,7 @@ public class MainActivity extends ActionBarActivity {
 
         }
 
-        nav.setUp(displayObjects, new PreviewFragment(), new PreviewFragment());
+        nav.setUp(displayObjects, new PreviewFragment());
 
         Log.i("MainActivity", "endOnCreate");
     }

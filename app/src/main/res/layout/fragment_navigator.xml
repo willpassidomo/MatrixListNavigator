@@ -7,7 +7,7 @@
     <ViewSwitcher
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/viewSwitcher" >
+        android:id="@+id/navigator_view_switcher" >
 
         <LinearLayout
             android:orientation="vertical"

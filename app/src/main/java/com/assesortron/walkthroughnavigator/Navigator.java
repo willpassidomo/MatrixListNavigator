@@ -22,6 +22,7 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
+import android.widget.ViewSwitcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +37,6 @@ import java.util.Set;
 public class Navigator extends Fragment implements DisplayFragment.ParentListener {
 
     public static final int NUM_PREVIEW_FRAGS = 3;
-    public static final int NUM_DISPLAY_FRAGS = 3;
 
     public static final int UP = 1;
     public static final int DOWN = 2;
@@ -49,12 +49,11 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
     private DisplayFragment<DisplayObject> previewFragment;
     private DisplayFragment<DisplayObject> displayFragment;
     private List<DisplayFragment<DisplayObject>> previewFragments = new ArrayList<>();
-    private ViewFlipper workingFragmentSpace;
     private ViewFlipper previewFragmentSpace;
     private Spinner axisOne, axisTwo, axisThree;
     private RadioButton completeFilter, toDoFilter;
     private Button allFilter;
-    private Space fragmentOverlay;
+    private ViewSwitcher viewSwitcher;
     private AxisMatrix axisMatrix;
 
     private int axis1Pos, axis2Pos, axis3Pos;
@@ -178,9 +177,8 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
 //    }
 
     public void setUp(List<DisplayObject> obj,
-                      DisplayFragment<DisplayObject> previewFragment,
                       DisplayFragment<DisplayObject> displayFragment) {
-        this.previewFragment = previewFragment;
+        this.previewFragment = new PreviewFragment();
         this.displayFragment = displayFragment;
         objs = obj;
         axisMatrix = new AxisMatrix(obj);
@@ -207,7 +205,7 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         completeFilter = (RadioButton) getView().findViewById(R.id.navigator_complete);
         toDoFilter = (RadioButton) getView().findViewById(R.id.navigator_todo);
 
-
+        viewSwitcher = (ViewSwitcher)getView().findViewById(R.id.navigator_view_switcher);
     }
 
     private void setFields() {
@@ -579,6 +577,17 @@ public class Navigator extends Fragment implements DisplayFragment.ParentListene
         Toast.makeText(getActivity(), obj.displayMessage(), Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void updateObject(DisplayObject obj) {
+        objs.remove(obj);
+        objs.add(obj);
+        viewSwitcher.showNext();
+    }
+
+    @Override
+    public List<DisplayObject> getObjects() {
+        return objs;
+    }
 
 
     public class AxisMatrix {

@@ -16,5 +16,7 @@ public abstract class DisplayFragment<T> extends Fragment {
         public interface ParentListener {
             public void viewCreated(View view);
             public void display(Navigator.DisplayObject obj);
+            public void updateObject(Navigator.DisplayObject obj);
+            public List<Navigator.DisplayObject> getObjects();
         }
 }
